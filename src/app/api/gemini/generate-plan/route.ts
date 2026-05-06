@@ -1,48 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/admin';
-import { generateFormulaPlan } from '@/lib/gemini';
-import { logAction } from '@/lib/logs';
+import { createClient } from '@/lib/supabase/server';
+import { generateFormulaPlanWithAI } from '@/lib/gemini';
 
 export async function POST(req: NextRequest) {
-  const supabase = createAdminClient();
-
   try {
-    const { memberId, profileId, data } = await req.json();
+    const { memberId, profileId, data: memberData } = await req.json();
 
-    if (!memberId || !profileId || !data) {
-      return NextResponse.json({ error: 'Missing required data' }, { status: 400 });
+    if (!memberId || !profileId) {
+      return NextResponse.json({ error: 'Missing IDs' }, { status: 400 });
     }
 
-    // 1. Generate plan with Gemini
-    const geminiResponse = await generateFormulaPlan(data);
+    const supabase = await createClient();
 
-    // 2. Save plan to DB
+    // 1. Gera o plano usando a lógica híbrida (Calculadora + Tradução da IA)
+    const formulaResult = await generateFormulaPlanWithAI({
+      name: memberData.name,
+      age: memberData.age,
+      heightCm: memberData.heightCm,
+      weightKg: memberData.weightKg,
+      imc: memberData.imc
+    });
+
+    // 2. Salva o plano no Supabase
     const { data: plan, error: planError } = await supabase
       .from('formula_plans')
       .insert({
         member_id: memberId,
-        profile_id: profileId,
-        input_data: data,
-        gemini_response: geminiResponse,
-        generated_text: JSON.stringify(geminiResponse)
+        member_profile_id: profileId,
+        gemini_response: formulaResult,
+        generated_text: JSON.stringify(formulaResult)
       })
       .select()
       .single();
 
     if (planError) throw planError;
 
-    await logAction({
-      memberId,
-      action: 'FORMULA_GENERATED',
-      entityType: 'formula_plan',
-      entityId: plan.id,
-      metadata: { version: plan.version }
+    return NextResponse.json({ 
+      success: true, 
+      planId: plan.id,
+      plan: formulaResult 
     });
 
-    return NextResponse.json({ success: true, planId: plan.id });
-
   } catch (error: any) {
-    console.error('Error generating plan:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Error generating formula plan:', error);
+    return NextResponse.json({ 
+      error: error.message 
+    }, { status: 500 });
   }
 }

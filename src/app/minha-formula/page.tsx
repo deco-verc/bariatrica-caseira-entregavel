@@ -5,7 +5,6 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Sparkles, Info, Lock, CheckCircle2, ChevronRight, Beaker, ShieldAlert } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { BLOCKED_INGREDIENTS } from '@/lib/formulaRules';
 import { Header } from '@/components/Header';
 
 export default function MyFormulaPage() {
@@ -103,27 +102,13 @@ export default function MyFormulaPage() {
                 <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-3">{ing.focus}</p>
                 <p className="text-sm text-gray-600 leading-relaxed mb-4">{ing.simpleExplanation}</p>
                 <div className="text-xs bg-gray-50 p-3 rounded-lg border border-gray-100 space-y-1">
-                  <p><strong>Uso:</strong> {ing.howToUse}</p>
-                  <p><strong>Sugestão:</strong> {ing.suggestedAmount}</p>
+                  <p><strong>Sugestão/Dose:</strong> {ing.amount} {ing.unit}</p>
+                  <p><strong>Como usar/Horário:</strong> {ing.timing || ing.howToUse}</p>
                 </div>
               </motion.div>
             ))}
 
-            {/* Blocked Ingredients */}
-            {BLOCKED_INGREDIENTS.map((ing, i) => (
-              <div key={`blocked-${i}`} className="card-premium p-6 relative">
-                <div className="blur-[4px] opacity-40 select-none">
-                  <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-4"></div>
-                  <h4 className="text-lg font-bold text-gray-900 mb-1">{ing.name}</h4>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">{ing.focus}</p>
-                </div>
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-white/40">
-                  <Lock className="w-8 h-8 text-gray-400 mb-2" />
-                  <p className="text-xs font-bold text-gray-500 uppercase px-3 py-1 bg-gray-100 rounded-full">Bloqueado</p>
-                  <p className="text-[10px] text-gray-400 mt-2">Liberado na fase avançada</p>
-                </div>
-              </div>
-            ))}
+            {/* Todos os ingredientes agora são renderizados dinamicamente pelo array data.ingredients */}
           </div>
         </section>
 
