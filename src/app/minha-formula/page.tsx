@@ -73,6 +73,8 @@ export default function MyFormulaPage() {
   const handleGenerateNow = async () => {
     setGenerating(true);
     try {
+      console.log('[MyFormula] Iniciando geração manual de fórmula...');
+      
       // Buscar o perfil da pessoa
       const { data: profile } = await supabase
         .from('member_profiles')
@@ -81,6 +83,7 @@ export default function MyFormulaPage() {
         .single();
       
       if (!profile) {
+        console.warn('[MyFormula] Perfil não encontrado, enviando para onboarding');
         router.push('/onboarding');
         return;
       }
@@ -102,11 +105,23 @@ export default function MyFormulaPage() {
       });
 
       const resData = await response.json();
-      if (!resData.ok) throw new Error('Falha ao gerar');
+      if (!resData.ok) {
+        throw new Error(resData.error || 'Falha ao gerar fórmula');
+      }
 
-      await loadData(); // Recarregar
-    } catch (err) {
-      alert('Erro ao gerar fórmula. Tente novamente.');
+      console.log('[MyFormula] Geração concluída com sucesso!');
+      
+      // DEFINIR DADOS DIRETAMENTE PARA ATUALIZAÇÃO INSTANTÂNEA NA UI
+      if (resData.plan) {
+        setData(resData.plan);
+      } else {
+        // Fallback: recarregar do banco se o objeto não vier completo
+        await loadData();
+      }
+
+    } catch (err: any) {
+      console.error('[MyFormula] Erro ao gerar agora:', err);
+      alert('Erro ao calcular sua dose: ' + err.message);
     } finally {
       setGenerating(false);
     }
