@@ -43,28 +43,33 @@ export function isChargeback(payload: KiwifyPayload): boolean {
   return payload.order_status === 'charged_back';
 }
 
-export function getBuyerEmail(payload: KiwifyPayload): string {
-  return payload.customer?.email?.toLowerCase() || '';
+export function getBuyerEmail(payload: any): string {
+  const customer = payload.customer || payload.Customer;
+  return customer?.email?.toLowerCase() || '';
 }
 
-export function getBuyerName(payload: KiwifyPayload): string {
-  return payload.customer?.full_name || '';
+export function getBuyerName(payload: any): string {
+  const customer = payload.customer || payload.Customer;
+  return customer?.full_name || '';
 }
 
-export function getBuyerPhone(payload: KiwifyPayload): string | undefined {
-  return payload.customer?.mobile;
+export function getBuyerPhone(payload: any): string | undefined {
+  const customer = payload.customer || payload.Customer;
+  return customer?.mobile;
 }
 
-export function getProductId(payload: KiwifyPayload): string {
-  return payload.product?.product_id || '';
+export function getProductId(payload: any): string {
+  const product = payload.product || payload.Product;
+  return product?.product_id || '';
 }
 
-export function getProductName(payload: KiwifyPayload): string {
-  return payload.product?.product_name || '';
+export function getProductName(payload: any): string {
+  const product = payload.product || payload.Product;
+  return product?.product_name || '';
 }
 
-export function getOrderId(payload: KiwifyPayload): string {
-  return payload.order_id || '';
+export function getOrderId(payload: any): string {
+  return payload.order_id || payload.order_ref || '';
 }
 
 export function getPurchaseStatus(payload: KiwifyPayload): KiwifyStatus {
