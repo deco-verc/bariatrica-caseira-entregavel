@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { generateFormulaPlanWithAI } from '@/lib/gemini';
+import { processLocalFormula } from '@/lib/formula';
 
 export async function POST(req: NextRequest) {
   try {
@@ -8,78 +8,66 @@ export async function POST(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      console.error('[API/GeneratePlan] Erro: Usuário não autenticado');
-      return NextResponse.json({ error: 'Usuário não autenticado' }, { status: 401 });
+      return NextResponse.json({ ok: false, error: 'Não autenticado' }, { status: 401 });
     }
 
-    const { memberId, profileId, data: memberData } = await req.json();
+    const body = await req.json();
+    const { memberId, profileId, data: memberData } = body;
 
     if (!memberId || !profileId) {
-      console.error('[API/GeneratePlan] Erro: IDs ausentes', { memberId, profileId });
-      return NextResponse.json({ error: 'IDs do membro ou perfil ausentes' }, { status: 400 });
+      return NextResponse.json({ ok: false, error: 'IDs ausentes' }, { status: 400 });
     }
 
-    // 1. Verificar se já existe um plano para este membro para evitar duplicação desnecessária
-    const { data: existingPlan } = await supabase
-      .from('formula_plans')
-      .select('id, gemini_response')
-      .eq('member_id', memberId)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (existingPlan) {
-      console.log('[API/GeneratePlan] Plano já existente encontrado, retornando...');
-      return NextResponse.json({ 
-        success: true, 
-        planId: existingPlan.id,
-        plan: existingPlan.gemini_response,
-        reused: true
-      });
-    }
-
-    // 2. Gera o plano usando a lógica híbrida
-    console.log('[API/GeneratePlan] Iniciando geração de nova fórmula...');
-    const formulaResult = await generateFormulaPlanWithAI({
+    // 1. Processamento Local (Determinístico e 100% Confiável)
+    console.log('[FormulaEngine] Processando cálculo local para:', memberData.name);
+    
+    // Adaptar dados do quiz para o motor local
+    const localResult = processLocalFormula({
       name: memberData.name,
       age: memberData.age,
-      heightCm: memberData.heightCm,
-      weightKg: memberData.weightKg,
-      imc: memberData.imc
+      gender: memberData.gender || 'Feminino',
+      weight: memberData.weightKg,
+      height: memberData.heightCm,
+      goal: memberData.goal || 'Emagrecimento',
+      hungerLevel: memberData.hungerLevel || 'media',
+      bloatingLevel: memberData.bloatingLevel || 'media',
+      fatigueLevel: memberData.fatigueLevel || 'media',
+      cravingsLevel: memberData.cravingsLevel || 'media',
+      sleepQuality: memberData.sleepQuality || 'regular',
+      routine: memberData.routine || 'ativa',
+      healthConditions: memberData.healthConditions || []
     });
 
-    // 3. Salvar o plano no Supabase
-    const { data: plan, error: planError } = await supabase
+    // 2. Salvar no Supabase
+    // Note: Mantendo 'gemini_response' no banco por compatibilidade, mas os dados vêm do motor local.
+    const { data: plan, error: dbError } = await supabase
       .from('formula_plans')
-      .insert({
+      .upsert({
         member_id: memberId,
-        member_profile_id: profileId,
-        gemini_response: formulaResult,
-        generated_text: JSON.stringify(formulaResult)
-      })
+        profile_id: profileId,
+        gemini_response: localResult,
+        generated_text: localResult.explanation,
+        input_data: memberData,
+        source: 'local_formula_engine'
+      }, { onConflict: 'member_id' })
       .select()
       .single();
 
-    if (planError) {
-      console.error('[API/GeneratePlan] Erro ao salvar plano no Supabase:', planError);
-      return NextResponse.json({ 
-        error: 'Erro ao salvar a fórmula no banco de dados',
-        details: planError.message 
-      }, { status: 500 });
+    if (dbError) {
+      console.error('[API/GeneratePlan] Erro de Banco:', dbError);
     }
 
-    console.log('[API/GeneratePlan] Nova fórmula gerada e salva com sucesso!');
     return NextResponse.json({ 
-      success: true, 
-      planId: plan.id,
-      plan: formulaResult 
+      ok: true, 
+      planId: plan?.id,
+      plan: localResult,
+      source: "local_formula_engine",
+      usedExternalAI: false,
+      message: "Plano calculado localmente com base nas suas respostas"
     });
 
   } catch (error: any) {
-    console.error('[API/GeneratePlan] Erro crítico inesperado:', error);
-    return NextResponse.json({ 
-      error: 'Erro interno ao processar sua fórmula',
-      details: error.message 
-    }, { status: 500 });
+    console.error('[API/GeneratePlan] Erro Crítico:', error);
+    return NextResponse.json({ ok: false, error: 'Ocorreu um erro ao processar sua fórmula localmente.' }, { status: 500 });
   }
 }

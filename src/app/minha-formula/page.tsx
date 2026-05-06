@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Sparkles, Info, Lock, CheckCircle2, ChevronRight, Beaker, ShieldAlert } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Header } from '@/components/Header';
+import { LocalPlanChatbot } from '@/components/chat/LocalPlanChatbot';
 
 export default function MyFormulaPage() {
   const [data, setData] = useState<any>(null);
@@ -116,10 +117,12 @@ export default function MyFormulaPage() {
                 </div>
                 <h4 className="text-lg font-bold text-gray-900 mb-1">{ing.name}</h4>
                 <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-3">{ing.focus}</p>
-                <p className="text-sm text-gray-600 leading-relaxed mb-4">{ing.simpleExplanation}</p>
-                <div className="text-xs bg-gray-50 p-3 rounded-lg border border-gray-100 space-y-1">
-                  <p><strong>Sugestão/Dose:</strong> {ing.amount} {ing.unit}</p>
-                  <p><strong>Como usar/Horário:</strong> {ing.timing || ing.howToUse}</p>
+                <div className="text-xs bg-gray-50 p-4 rounded-lg border border-gray-100 space-y-2 mt-auto">
+                  <p><strong>Dose Sugerida:</strong> {ing.dose} {ing.unit}</p>
+                  <p><strong>Melhor Horário:</strong> {ing.timing}</p>
+                  <p className="pt-2 text-primary font-medium border-t border-gray-200 mt-2">
+                    <strong>Por que foi indicado:</strong> {ing.reason}
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -168,6 +171,9 @@ export default function MyFormulaPage() {
             Ir para o Dashboard <ChevronRight className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Chatbot Local Sem API */}
+        <LocalPlanChatbot planData={data} />
       </div>
     </main>
   );

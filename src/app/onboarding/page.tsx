@@ -110,7 +110,16 @@ export default function OnboardingPage() {
         })
       });
 
-      if (!response.ok) throw new Error('Falha ao gerar fórmula');
+      const resData = await response.json();
+      
+      if (!resData.ok) {
+        throw new Error(resData.error || 'Falha ao gerar fórmula');
+      }
+
+      // Se usou fallback, podemos opcionalmente logar ou mostrar um toast
+      if (resData.usedFallback) {
+        console.warn('Nota: Usado cálculo local (IA indisponível)');
+      }
 
       router.push('/dashboard');
     } catch (error: any) {

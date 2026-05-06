@@ -17,6 +17,7 @@ import {
   FileText
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { LocalPlanChatbot } from '@/components/chat/LocalPlanChatbot';
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
@@ -262,6 +263,9 @@ export default function DashboardPage() {
           <MobileNavItem icon={<BookOpen />} label="Bônus" onClick={() => router.push('/bonus')} />
           <MobileNavItem icon={<TrendingUp />} label="Medidas" onClick={() => router.push('/medidas')} />
         </nav>
+
+        {/* Chatbot Local Sem API */}
+        <LocalPlanChatbot planData={member} />
       </div>
     </main>
   );
