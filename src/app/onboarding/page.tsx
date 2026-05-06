@@ -78,7 +78,7 @@ export default function OnboardingPage() {
           current_weight_kg: weight,
           imc,
           onboarding_completed: true
-        })
+        }, { onConflict: 'member_id' })
         .select()
         .single();
 
@@ -109,7 +109,7 @@ export default function OnboardingPage() {
 
       if (!response.ok) throw new Error('Falha ao gerar fórmula');
 
-      router.push('/minha-formula');
+      router.push('/dashboard');
     } catch (error: any) {
       console.error('Error in onboarding submission:', error);
       alert(error.message || 'Não conseguimos gerar sua fórmula agora. Verifique sua conexão ou tente novamente em alguns minutos.');

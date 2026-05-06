@@ -70,6 +70,7 @@ export default function FirstAccessPage() {
 
       if (memberError) throw memberError;
 
+      localStorage.setItem('bc_password_updated', 'true');
       router.push('/onboarding');
     } catch (err: any) {
       console.error(err);

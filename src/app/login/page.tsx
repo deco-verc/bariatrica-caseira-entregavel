@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -12,8 +12,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showFirstAccessInfo, setShowFirstAccessInfo] = useState(true);
   const router = useRouter();
   const supabase = createClient();
+  
+  useEffect(() => {
+    const updated = localStorage.getItem('bc_password_updated');
+    if (updated === 'true') {
+      setShowFirstAccessInfo(false);
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -141,12 +149,14 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <div className="mt-8 p-6 bg-primary-very-light border border-primary-light rounded-2xl text-center">
-          <p className="text-sm text-green-800">
-            <strong>Primeiro acesso?</strong> <br />
-            Use a senha temporária enviada no seu e-mail logo após a compra.
-          </p>
-        </div>
+        {showFirstAccessInfo && (
+          <div className="mt-8 p-6 bg-primary-very-light border border-primary-light rounded-2xl text-center">
+            <p className="text-sm text-green-800">
+              <strong>Primeiro acesso?</strong> <br />
+              Use a senha temporária enviada no seu e-mail logo após a compra.
+            </p>
+          </div>
+        )}
       </motion.div>
     </main>
   );
