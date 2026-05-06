@@ -20,9 +20,22 @@ export async function POST(req: NextRequest) {
   const supabase = createAdminClient();
   const searchParams = req.nextUrl.searchParams;
   const token = searchParams.get('token');
+  const signature = searchParams.get('signature'); // Kiwify envia signature
 
-  // Basic security check
-  if (process.env.KIWIFY_WEBHOOK_SECRET && token !== process.env.KIWIFY_WEBHOOK_SECRET) {
+  // Log para debug (aparecerá no painel da Vercel)
+  console.log('Webhook received:', { 
+    url: req.nextUrl.toString(),
+    hasToken: !!token,
+    hasSignature: !!signature,
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'PRESENT' : 'MISSING'
+  });
+
+  // Basic security check - Permite token na URL (mais fácil de configurar)
+  const webhookSecret = process.env.KIWIFY_WEBHOOK_SECRET;
+  const isAuthorized = !webhookSecret || token === webhookSecret;
+
+  if (!isAuthorized) {
+    console.error('Unauthorized webhook access attempt');
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
