@@ -23,14 +23,30 @@ export default function MyFormulaPage() {
       }
       setUser(user);
 
+      const { data: m } = await supabase
+        .from('members')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (m?.first_login_required) {
+        router.push('/primeiro-acesso');
+        return;
+      }
+      
+      if (!m?.onboarding_completed) {
+        router.push('/onboarding');
+        return;
+      }
+
       // Get latest formula plan
       const { data: plan } = await supabase
         .from('formula_plans')
         .select('*')
-        .eq('member_id', (await supabase.from('members').select('id').eq('user_id', user.id).single()).data?.id)
+        .eq('member_id', m.id)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (!plan) {
         router.push('/onboarding');

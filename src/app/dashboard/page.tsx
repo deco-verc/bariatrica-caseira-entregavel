@@ -40,10 +40,20 @@ export default function DashboardPage() {
         .eq('user_id', user.id)
         .single();
       
+      // 1. Prioridade máxima: Primeiro Acesso (Troca de senha)
+      if (m?.first_login_required) {
+        console.log('[Dashboard] Primeiro acesso pendente, redirecionando...');
+        router.push('/primeiro-acesso');
+        return;
+      }
+
+      // 2. Segunda prioridade: Onboarding (Quiz)
       if (!m?.onboarding_completed) {
+        console.log('[Dashboard] Onboarding pendente, redirecionando...');
         router.push('/onboarding');
         return;
       }
+
       setMember(m);
       setLoading(false);
     };

@@ -15,6 +15,7 @@ export default function OnboardingPage() {
     weight: ''
   });
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<{ message: string; details?: string } | null>(null);
   const [user, setUser] = useState<any>(null);
   const [member, setMember] = useState<any>(null);
   const router = useRouter();
@@ -36,6 +37,7 @@ export default function OnboardingPage() {
         .single();
       
       if (m?.onboarding_completed) {
+        console.log('[Onboarding] Usuário já concluiu, redirecionando para dashboard...');
         router.push('/dashboard');
         return;
       }
@@ -62,6 +64,7 @@ export default function OnboardingPage() {
 
   const handleSubmit = async () => {
     setLoading(true);
+    setSubmitError(null);
     try {
       const weight = parseFloat(formData.weight);
       const height = parseFloat(formData.height);
@@ -112,7 +115,10 @@ export default function OnboardingPage() {
       router.push('/dashboard');
     } catch (error: any) {
       console.error('Error in onboarding submission:', error);
-      alert(error.message || 'Não conseguimos gerar sua fórmula agora. Verifique sua conexão ou tente novamente em alguns minutos.');
+      setSubmitError({
+        message: 'Não conseguimos gerar sua fórmula agora. Tente de novo em alguns instantes.',
+        details: error.message
+      });
     } finally {
       setLoading(false);
     }
@@ -261,6 +267,21 @@ export default function OnboardingPage() {
                   Revisar dados
                 </button>
               </div>
+
+              {submitError && (
+                <div className="mt-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-left">
+                  <p className="text-red-700 font-medium text-sm">{submitError.message}</p>
+                  {process.env.NODE_ENV === 'development' && submitError.details && (
+                    <p className="text-[10px] text-red-400 mt-2 font-mono">Erro: {submitError.details}</p>
+                  )}
+                  <button 
+                    onClick={handleSubmit}
+                    className="mt-3 text-xs font-bold text-red-600 uppercase tracking-wider hover:underline"
+                  >
+                    Tentar Novamente
+                  </button>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

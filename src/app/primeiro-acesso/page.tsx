@@ -31,6 +31,7 @@ export default function FirstAccessPage() {
           .single();
         
         if (member && !member.first_login_required) {
+          console.log('[PrimeiroAcesso] Senha já alterada, redirecionando...');
           router.push('/dashboard');
         }
       }
