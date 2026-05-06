@@ -13,6 +13,8 @@ export const metadata: Metadata = {
   viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 };
 
+import ChatWidget from "@/components/chat/ChatWidget";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -22,6 +24,7 @@ export default function RootLayout({
     <html lang="pt-BR" className={`${outfit.variable} h-full antialiased`}>
       <body className={`min-h-full flex flex-col font-sans bg-gray-50`}>
         {children}
+        <ChatWidget />
       </body>
     </html>
   );

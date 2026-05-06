@@ -67,13 +67,26 @@ export async function generateFormulaPlan(profile: UserProfileData) {
 
   try {
     const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const response = await result.response;
+    const text = response.text();
+    
     // Clean potential markdown code blocks
     const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
-    return JSON.parse(jsonStr);
-  } catch (error) {
+    
+    try {
+      return JSON.parse(jsonStr);
+    } catch (parseError) {
+      console.error('Failed to parse Gemini JSON response:', text);
+      throw new Error('Falha ao processar os dados da fórmula. Por favor, tente novamente.');
+    }
+  } catch (error: any) {
     console.error('Error generating formula with Gemini:', error);
-    throw error;
+    
+    if (error.message?.includes('429') || error.message?.includes('Too Many Requests')) {
+      throw new Error('O sistema está um pouco sobrecarregado agora. Por favor, aguarde alguns segundos e tente novamente.');
+    }
+    
+    throw new Error(error.message || 'Erro inesperado ao gerar sua fórmula.');
   }
 }
 

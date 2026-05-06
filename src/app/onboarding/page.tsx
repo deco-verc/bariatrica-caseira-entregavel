@@ -110,9 +110,9 @@ export default function OnboardingPage() {
       if (!response.ok) throw new Error('Falha ao gerar fórmula');
 
       router.push('/minha-formula');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error in onboarding submission:', error);
-      alert('Ocorreu um erro. Tente novamente.');
+      alert(error.message || 'Não conseguimos gerar sua fórmula agora. Verifique sua conexão ou tente novamente em alguns minutos.');
     } finally {
       setLoading(false);
     }
