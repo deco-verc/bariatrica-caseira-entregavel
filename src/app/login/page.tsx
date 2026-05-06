@@ -44,7 +44,20 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Erro ao entrar. Verifique seus dados.');
+      
+      let errorMessage = 'Erro ao entrar. Verifique seus dados.';
+      
+      if (err.message === 'Invalid login credentials') {
+        errorMessage = 'E-mail ou senha incorretos.';
+      } else if (err.message === 'Email not confirmed') {
+        errorMessage = 'Por favor, confirme seu e-mail antes de acessar.';
+      } else if (err.message?.includes('rate limit')) {
+        errorMessage = 'Muitas tentativas seguidas. Tente novamente em alguns minutos.';
+      } else {
+        errorMessage = err.message || errorMessage;
+      }
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
