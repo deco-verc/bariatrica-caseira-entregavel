@@ -118,11 +118,13 @@ export default function MyFormulaPage() {
                 <h4 className="text-lg font-bold text-gray-900 mb-1">{ing.name}</h4>
                 <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-3">{ing.focus}</p>
                 <div className="text-xs bg-gray-50 p-4 rounded-lg border border-gray-100 space-y-2 mt-auto">
-                  <p><strong>Dose Sugerida:</strong> {ing.dose} {ing.unit}</p>
-                  <p><strong>Melhor Horário:</strong> {ing.timing}</p>
-                  <p className="pt-2 text-primary font-medium border-t border-gray-200 mt-2">
-                    <strong>Por que foi indicado:</strong> {ing.reason}
-                  </p>
+                  <p><strong>Dose Sugerida:</strong> {ing.dose || ing.amount} {ing.unit}</p>
+                  <p><strong>Melhor Horário:</strong> {ing.timing || ing.howToUse}</p>
+                  {(ing.reason || ing.simpleExplanation) && (
+                    <p className="pt-2 text-primary font-medium border-t border-gray-200 mt-2">
+                      <strong>Por que foi indicado:</strong> {ing.reason || ing.simpleExplanation}
+                    </p>
+                  )}
                 </div>
               </motion.div>
             ))}
@@ -138,7 +140,9 @@ export default function MyFormulaPage() {
             Seu Plano de Uso
           </h3>
           <div className="prose prose-green max-w-none text-gray-600">
-            <p className="text-lg leading-relaxed whitespace-pre-wrap">{data.usagePlan}</p>
+            <p className="text-lg leading-relaxed whitespace-pre-wrap">
+              {data.howToUse || data.usagePlan || data.dailyPlan || "Siga as orientações de dosagem para cada ingrediente acima."}
+            </p>
           </div>
         </section>
 
@@ -159,7 +163,7 @@ export default function MyFormulaPage() {
 
         {/* Footer Note */}
         <footer className="text-center pt-8 text-sm text-gray-400">
-          <p>{data.warnings.join(' • ')}</p>
+          <p>{(data.warnings || []).join(' • ')}</p>
         </footer>
 
         {/* Floating Action Button */}
