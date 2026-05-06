@@ -36,6 +36,12 @@ export default function OnboardingPage() {
         .eq('user_id', user.id)
         .single();
       
+      if (m?.first_login_required) {
+        console.log('[Onboarding] Primeiro acesso pendente, redirecionando para troca de senha...');
+        router.push('/primeiro-acesso');
+        return;
+      }
+
       if (m?.onboarding_completed) {
         console.log('[Onboarding] Usuário já concluiu, redirecionando para dashboard...');
         router.push('/dashboard');
@@ -87,11 +93,23 @@ export default function OnboardingPage() {
 
       if (profileError) throw profileError;
 
-      // 2. Update member status
-      await supabase
-        .from('members')
-        .update({ onboarding_completed: true, name: formData.name })
-        .eq('id', member.id);
+      // 2. Update member status via secure API
+      const statusRes = await fetch('/api/member/update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          updates: { 
+            onboarding_completed: true, 
+            name: formData.name 
+          }
+        })
+      });
+
+      const statusResData = await statusRes.json();
+      if (!statusResData.ok) {
+        throw new Error('Falha ao salvar progresso do onboarding.');
+      }
 
       // 3. Generate Formula with Gemini via API
       const response = await fetch('/api/gemini/generate-plan', {
