@@ -39,15 +39,15 @@ body {
 
 @layer components {
   .card-premium {
-    @apply bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md;
+    @apply bg-white rounded-[2.5rem] border border-slate-50 shadow-xl shadow-slate-200/40 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-green-100/50 hover:-translate-y-1;
   }
   
   .btn-primary {
-    @apply bg-primary text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 hover:bg-green-700 active:scale-95 disabled:opacity-50 disabled:pointer-events-none text-center inline-flex items-center justify-center gap-2;
+    @apply bg-green-600 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 hover:bg-green-700 active:scale-95 disabled:opacity-50 disabled:pointer-events-none text-center inline-flex items-center justify-center gap-2 shadow-lg shadow-green-100;
   }
 
   .btn-outline {
-    @apply border-2 border-primary text-primary font-semibold py-3 px-6 rounded-xl transition-all duration-200 hover:bg-primary-very-light active:scale-95 disabled:opacity-50 text-center inline-flex items-center justify-center gap-2;
+    @apply border-2 border-green-600 text-green-600 font-bold py-4 px-8 rounded-2xl transition-all duration-300 hover:bg-green-50 active:scale-95 disabled:opacity-50 text-center inline-flex items-center justify-center gap-2;
   }
 
   .form-input {
