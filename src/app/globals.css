@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #16a34a;
+  --color-primary-light: #dcfce7;
+  --color-primary-very-light: #f0fdf4;
+  --color-bg-gray: #f9fafb;
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --primary: #16a34a;
+  --primary-foreground: 210 40% 98%;
+  --background: #f9fafb;
+  --foreground: #1f2937;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 142.1 76.2% 36.3%;
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+@layer components {
+  .card-premium {
+    @apply bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md;
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 hover:bg-green-700 active:scale-95 disabled:opacity-50 disabled:pointer-events-none text-center inline-flex items-center justify-center gap-2;
+  }
+
+  .btn-outline {
+    @apply border-2 border-primary text-primary font-semibold py-3 px-6 rounded-xl transition-all duration-200 hover:bg-primary-very-light active:scale-95 disabled:opacity-50 text-center inline-flex items-center justify-center gap-2;
+  }
+
+  .form-input {
+    @apply w-full p-4 rounded-xl border border-gray-200 outline-none transition-all duration-200 focus:border-primary focus:ring-4 focus:ring-primary-light bg-white;
+  }
+}
