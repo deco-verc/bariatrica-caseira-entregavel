@@ -89,6 +89,7 @@ CREATE TABLE public.member_profiles (
   height_cm NUMERIC,
   current_weight_kg NUMERIC,
   imc NUMERIC,
+  preferred_time TEXT,
   onboarding_completed BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
